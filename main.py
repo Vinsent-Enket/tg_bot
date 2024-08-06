@@ -4,9 +4,11 @@ from datetime import datetime
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import Command, CommandObject
+from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import Message
 from aiogram.utils.formatting import Bold, Text
+from aiogram.types import LinkPreviewOptions
+
 
 BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
 
@@ -81,9 +83,9 @@ dp = Dispatcher()
 
 
 # Этот хэндлер будет срабатывать на команду "/start"
-@dp.message(Command(commands=['start']))
-async def process_start_command(message: Message):
-    await message.answer(hello_text)
+# @dp.message(Command(commands=['start']))
+# async def process_start_command(message: Message):
+#     await message.answer(hello_text)
 
 
 # Этот хэндлер будет срабатывать на команду "/help"
@@ -92,6 +94,12 @@ async def process_about_command(message: Message):
     await message.answer(about_text)
 
 
+@dp.message(Command("start"))
+@dp.message(CommandStart(
+    deep_link=True
+))
+async def cmd_start_help(message: Message):
+    await message.answer("Это старт с кнопкой старт")
 # кастомные команды
 
 @dp.message(Command(commands='get_id'))
@@ -138,6 +146,71 @@ async def cmd_stats(message: types.Message):
 
 
 
+# Новый импорт
+
+@dp.message(Command("links"))
+async def cmd_links(message: Message):
+    links_text = (
+        "https://nplus1.ru/news/2024/05/23/voyager-1-science-data"
+        "\n"
+        "https://t.me/telegram"
+    )
+    # Ссылка отключена
+    options_1 = LinkPreviewOptions(is_disabled=True)
+    await message.answer(
+        f"Нет превью ссылок\n{links_text}",
+        link_preview_options=options_1
+    )
+
+    # -------------------- #
+
+    # Маленькое превью
+    # Для использования prefer_small_media обязательно указывать ещё и url
+    options_2 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_small_media=True
+    )
+    await message.answer(
+        f"Маленькое превью\n{links_text}",
+        link_preview_options=options_2
+    )
+
+    # -------------------- #
+
+    # Большое превью
+    # Для использования prefer_large_media обязательно указывать ещё и url
+    options_3 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_large_media=True
+    )
+    await message.answer(
+        f"Большое превью\n{links_text}",
+        link_preview_options=options_3
+    )
+
+    # -------------------- #
+
+    # Можно сочетать: маленькое превью и расположение над текстом
+    options_4 = LinkPreviewOptions(
+        url="https://nplus1.ru/news/2024/05/23/voyager-1-science-data",
+        prefer_small_media=True,
+        show_above_text=True
+    )
+    await message.answer(
+        f"Маленькое превью над текстом\n{links_text}",
+        link_preview_options=options_4
+    )
+
+    # -------------------- #
+
+    # Можно выбрать, какая ссылка будет использоваться для предпосмотра,
+    options_5 = LinkPreviewOptions(
+        url="https://t.me/telegram"
+    )
+    await message.answer(
+        f"Предпросмотр не первой ссылки\n{links_text}",
+        link_preview_options=options_5
+    )
 
 """
 ----------------------------------------------------------------------------------------------
