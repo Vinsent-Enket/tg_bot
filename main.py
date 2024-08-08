@@ -8,67 +8,20 @@ from aiogram.filters import Command, CommandObject, CommandStart
 from aiogram.types import Message
 from aiogram.utils.formatting import Bold, Text
 from aiogram.types import LinkPreviewOptions
-
+from aiogram.utils.markdown import hide_link
 
 BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
 
 hello_text = ('Здравствуйте, я бот <strong>автосервиса</strong>,'
               ' с моей помощью вы можете оставить заявку на звонок мастера')
 
-about_text = 'Мы находимся по адресу - Москва, наш сайт - https://www.test.ru'
+help_text = 'Мы находимся по адресу - Москва, наш сайт - https://www.test.ru'
 
 # TODO: Сделать команду для таймера и будильника, крч периодические задачи
 
 # TODO: По запросу Алексея, добавить отправку анекдотов по номерам (еще и случайного)
 #  и по расписанию вычислять пидора (вот тебе и периодические задачи).
 
-"""
-топ html разметок
-
-1. <p> — параграф.
-2. <h1> — заголовок первого уровня.
-3. <h2> — заголовок второго уровня.
-4. <h3> — заголовок третьего уровня.
-5. <h4> — заголовок четвертого уровня.
-6. <h5> — заголовок пятого уровня.
-7. <h6> — заголовок шестого уровня.
-8. <br> — перенос строки.
-9. <strong> — выделение жирным шрифтом.
-10. <em> — выделение курсивом.
-11. <img> — изображение.
-12. <a> — гиперссылка.
-13. <ul> — маркированный список.
-14. <ol> — нумерованный список.
-15. <li> — элемент списка.
-16. <div> — контейнер для группировки других элементов.
-17. <span> — контейнер для форматирования текста.
-18. <table> — таблица.
-19. <tr> — строка таблицы.
-20. <td> — ячейка таблицы.
-"""
-
-"""
-
-Свои пояснения:
-
-У нас есть бот, который будет обрабатывать команды
-
-У него есть диспетчер который реагирует на сообщения
-
-
-Разберем примером
-
-@dp.message(Command(commands=["start"]))  - регистрируем команду "/start
-async def process_start_command(message: Message):
-    await message.answer(  - указываем что будет в ответе
-        f'Привет!\nМеня зовут Эхо-бот!\nНапиши мне что-нибудь\n\n\n{message.model_dump_json(indent=4, 
-        exclude_none=True)}')
-        
-        
-    есть answer - это просто текст
-    а есть reply - это уже *ответ*
-
-"""
 
 # Создаем объекты бота и диспетчера
 # bot = Bot(token=BOT_TOKEN)
@@ -89,9 +42,9 @@ dp = Dispatcher()
 
 
 # Этот хэндлер будет срабатывать на команду "/help"
-@dp.message(Command(commands=['about']))
+@dp.message(Command(commands=['help']))
 async def process_about_command(message: Message):
-    await message.answer(about_text)
+    await message.answer(help_text)
 
 
 @dp.message(Command("start"))
@@ -100,6 +53,8 @@ async def process_about_command(message: Message):
 ))
 async def cmd_start_help(message: Message):
     await message.answer("Это старт с кнопкой старт")
+
+
 # кастомные команды
 
 @dp.message(Command(commands='get_id'))
@@ -143,10 +98,6 @@ async def cmd_stats(message: types.Message):
                          f'{message.chat.last_name}\n'
                          f'Премиум {message.from_user.is_premium}')
 
-
-
-
-# Новый импорт
 
 @dp.message(Command("links"))
 async def cmd_links(message: Message):
@@ -211,6 +162,32 @@ async def cmd_links(message: Message):
         f"Предпросмотр не первой ссылки\n{links_text}",
         link_preview_options=options_5
     )
+
+
+@dp.message(Command("hidden_link"))
+async def cmd_hidden_link(message: Message):
+    await message.answer(
+        f"{hide_link('https://telegra.ph/file/562a512448876923e28c3.png')}"
+        f"Документация Telegram: *существует*\n"
+        f"Пользователи: *не читают документацию*\n"
+        f"Груша:"
+    )
+
+
+@dp.message(Command("food"))
+async def cmd_start(message: types.Message):
+    kb = [
+        [
+            types.KeyboardButton(text="С пюрешкой"),
+            types.KeyboardButton(text="Без пюрешки")
+        ],
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        input_field_placeholder="Выберите способ подачи"
+    )
+    await message.answer("Как подавать котлеты?", reply_markup=keyboard)
 
 """
 ----------------------------------------------------------------------------------------------
