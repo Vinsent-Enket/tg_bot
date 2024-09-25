@@ -108,5 +108,16 @@ async def cmd_album(message: Message):
         media=album_builder.build()
     )
 
+"""
+Что хочется добавить
+
+кнопку назад, чтобы возвращаться в изначальное меню
+
+
+"""
+
+
+
+
 if __name__ == '__main__':
     dp.run_polling(bot)
