@@ -58,6 +58,7 @@ async def process_meme_command(message: Message):
     await message.answer(f"{hide_link(random.choice(memes))}"
                          f"твой мем")
 
+
 # Меню с кнопками
 @dp.message(Command("menu"))
 async def process_random_meme_1(message: Message):
@@ -75,16 +76,57 @@ async def process_random_meme_1(message: Message):
     await message.answer("Какую отправить мем?", reply_markup=keyboard)
 
 
+@dp.message(Command('test_menu'))
+async def menu_builder(message: Message, mod=None):
+    if mod == 'main':
+        kb = [[
+            types.KeyboardButton(text='Ссылочные мемы'),
+            types.KeyboardButton(text="Скачанные мемы"),
+            types.KeyboardButton(text="Картинки из символов"),
+            types.KeyboardButton(text="Анекдоты"),
+        ], ]
+    elif mod == 'meme':
+        kb = [
+            [
+                types.KeyboardButton(text="Рандом"),
+                types.KeyboardButton(text="Альбом"),
+                types.KeyboardButton(text="Назад в мейн меню"),
+            ], ]
+    else:
+        kb = [[
+            types.KeyboardButton(text='Ссылочные мемы'),
+            types.KeyboardButton(text="Скачанные мемы"),
+            types.KeyboardButton(text="Картинки из символов"),
+            types.KeyboardButton(text="Анекдоты"),
+        ], ]
+
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        input_field_placeholder="Выберите кнопку"
+    )
+    await message.answer("Какую отправить мем?", reply_markup=keyboard)
+
+
+@dp.message(F.text.lower() == "ссылочные мемы")
+async def link_meme_menu(message: Message):
+    await menu_builder(message, 'meme')
+
+
+@dp.message(F.text.lower() == "назад в мейн меню")
+async def back_to_main_menu(message: Message):
+    await menu_builder(message, 'main')
+
+
 @dp.message(F.text.lower() == "рандом")
 async def with_puree(message: types.Message):
     await message.answer(f"{hide_link(random.choice(memes))}"
                          f"твой мем")
 
 
-
 @dp.message(F.text.lower() == "альбом")
 async def cmd_album(message: Message):
-    album_builder = MediaGroupBuilder( # создаем альбом и задаем ему описание
+    album_builder = MediaGroupBuilder(  # создаем альбом и задаем ему описание
         caption="Подпись для альбома"
     )
     album_builder.add(
@@ -108,6 +150,7 @@ async def cmd_album(message: Message):
         media=album_builder.build()
     )
 
+
 """
 Что хочется добавить
 
@@ -115,9 +158,6 @@ async def cmd_album(message: Message):
 
 
 """
-
-
-
 
 if __name__ == '__main__':
     dp.run_polling(bot)
