@@ -7,6 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.utils.markdown import hide_link
 from aiogram.utils.media_group import MediaGroupBuilder
 
@@ -75,6 +76,18 @@ async def process_random_meme_1(message: Message):
     )
     await message.answer("Какую отправить мем?", reply_markup=keyboard)
 
+
+@dp.message(Command('work_menu'))
+async def work_menu_builder(message: Message):
+    builder = ReplyKeyboardBuilder()
+    builder.row(
+        types.KeyboardButton(text="Запросить геолокацию", request_location=True),
+        types.KeyboardButton(text="Запросить контакт", request_contact=True)
+    )
+    await message.answer(
+        "Выберите действие:",
+        reply_markup=builder.as_markup(resize_keyboard=True),
+    )
 
 @dp.message(Command('test_menu'))
 async def menu_builder(message: Message, mod=None):
@@ -150,14 +163,6 @@ async def cmd_album(message: Message):
         media=album_builder.build()
     )
 
-
-"""
-Что хочется добавить
-
-кнопку назад, чтобы возвращаться в изначальное меню
-
-
-"""
 
 if __name__ == '__main__':
     dp.run_polling(bot)
