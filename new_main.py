@@ -11,14 +11,15 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.utils.markdown import hide_link
 from aiogram.utils.media_group import MediaGroupBuilder
 
+# ссылки на мемы
 memes = ["https://pic.rutubelist.ru/video/e1/b0/e1b07858d5c76253cc0b2fcedaa470f0.jpg",
          "https://i.pinimg.com/736x/2b/3f/c2/2b3fc23563175d97f9a0f6f10405fb25.jpg",
          "https://avatars.mds.yandex.net/i?id=48845ca40b1d9cb90f92c1cdcd9d2fc0_l-5682441-images-thumbs&ref=rim&n=13&w=1080&h=1080",
 
          ]
 
-BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
-
+# BOT_TOKEN = os.getenv('TG_BOT_TOKEN')
+BOT_TOKEN = "6908027614:AAHCULVVrZBd7zKKK_2A9_weqXgY7rcR8to"
 bot = Bot(
     token=BOT_TOKEN,
 
@@ -33,7 +34,7 @@ dp = Dispatcher()
 help_text = ("Список команд бота:\n"
              "start - запуск бота\n")
 
-
+# команда старт (не забыть добавить отправку меню)
 @dp.message(Command("start"))
 @dp.message(CommandStart(
     deep_link=True
@@ -61,20 +62,7 @@ async def process_meme_command(message: Message):
 
 
 # Меню с кнопками
-@dp.message(Command("menu"))
-async def process_random_meme_1(message: Message):
-    kb = [
-        [
-            types.KeyboardButton(text="Рандом"),
-            types.KeyboardButton(text="Альбом")
-        ],
-    ]
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        input_field_placeholder="Выберите кнопку"
-    )
-    await message.answer("Какую отправить мем?", reply_markup=keyboard)
+
 
 
 @dp.message(Command('work_menu'))
@@ -89,14 +77,16 @@ async def work_menu_builder(message: Message):
         reply_markup=builder.as_markup(resize_keyboard=True),
     )
 
-@dp.message(Command('test_menu'))
+
+@dp.message(Command('menu'))
 async def menu_builder(message: Message, mod=None):
     if mod == 'main':
         kb = [[
             types.KeyboardButton(text='Ссылочные мемы'),
-            types.KeyboardButton(text="Скачанные мемы"),
-            types.KeyboardButton(text="Картинки из символов"),
-            types.KeyboardButton(text="Анекдоты"),
+            types.KeyboardButton(text="Скачанные мемы*"),
+            types.KeyboardButton(text="Картинки из символов*"),
+            types.KeyboardButton(text="Анекдоты*"),
+            types.KeyboardButton(text="+2 или -2?"),
         ], ]
     elif mod == 'meme':
         kb = [
@@ -107,10 +97,7 @@ async def menu_builder(message: Message, mod=None):
             ], ]
     else:
         kb = [[
-            types.KeyboardButton(text='Ссылочные мемы'),
-            types.KeyboardButton(text="Скачанные мемы"),
-            types.KeyboardButton(text="Картинки из символов"),
-            types.KeyboardButton(text="Анекдоты"),
+            types.KeyboardButton(text='Что то пошло не так'),
         ], ]
 
     keyboard = types.ReplyKeyboardMarkup(
@@ -162,6 +149,54 @@ async def cmd_album(message: Message):
         # Не забудьте вызвать build()
         media=album_builder.build()
     )
+
+
+def get_keyboard():
+    buttons = [
+        [
+            types.InlineKeyboardButton(text="-1", callback_data="num_decr"),
+            types.InlineKeyboardButton(text="+1", callback_data="num_incr")
+        ],
+        [types.InlineKeyboardButton(text="Подтвердить", callback_data="num_finish")]
+    ]
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=buttons)
+    return keyboard
+
+
+async def update_num_text(message: types.Message, new_value: int):
+    await message.edit_text(
+        f"Укажите число: {new_value}",
+        reply_markup=get_keyboard()
+    )
+
+
+user_data = {}
+
+
+@dp.message(Command("numbers"))
+async def cmd_numbers(message: types.Message):
+    user_data[message.from_user.id] = 0
+    await message.answer("Укажите число: 0", reply_markup=get_keyboard())
+
+
+@dp.callback_query(F.data.startswith("num_"))
+async def callbacks_num(callback: types.CallbackQuery):
+    user_value = user_data.get(callback.from_user.id, 0)
+    action = callback.data.split("_")[1]
+
+    if action == "incr":
+        user_data[callback.from_user.id] = user_value + 1
+        await update_num_text(callback.message, user_value + 1)
+    elif action == "decr":
+        user_data[callback.from_user.id] = user_value - 1
+        await update_num_text(callback.message, user_value - 1)
+    elif action == "finish":
+        await callback.message.edit_text(f"Итого: {user_value}")
+
+    await callback.answer()
+
+
+
 
 
 if __name__ == '__main__':
