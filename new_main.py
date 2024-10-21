@@ -62,7 +62,20 @@ async def process_meme_command(message: Message):
 
 
 # Меню с кнопками
-
+@dp.message(Command("menu"))
+async def process_random_meme_1(message: Message):
+    kb = [
+        [
+            types.KeyboardButton(text="Рандом"),
+            types.KeyboardButton(text="Альбом")
+        ],
+    ]
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        input_field_placeholder="Выберите кнопку"
+    )
+    await message.answer("Какую отправить мем?", reply_markup=keyboard)
 
 
 @dp.message(Command('work_menu'))
@@ -197,6 +210,31 @@ async def callbacks_num(callback: types.CallbackQuery):
 
 
 
+
+
+@dp.message(F.text.lower() == "ранд число")
+async def random_number(message: Message):
+    builder = InlineKeyboardBuilder()
+    builder.add(types.InlineKeyboardButton(
+        text="Нажми меня",
+        callback_data="random_value")
+    )
+    await message.answer(
+        "Нажмите на кнопку, чтобы бот отправил число от 1 до 10",
+        reply_markup=builder.as_markup()
+    )
+
+@dp.callback_query(F.data == "random_value")
+async def send_random_value(callback: types.CallbackQuery):
+    await callback.message.answer(str(random.randint(1, 10)))
+    await callback.answer(
+        text="Спасибо, что воспользовались ботом!",
+        show_alert=True
+    )
+
+# @dp.callback_query(F.data == "random_value")
+# async def send_random_value(callback: types.CallbackQuery):
+#     await callback.message.answer(str(random.randint(1, 10)))
 
 
 if __name__ == '__main__':
