@@ -37,28 +37,35 @@ help_text = ("Список команд бота:\n"
              )
 
 
+@dp.message(Command("start"))
+@dp.message(CommandStart(
+    deep_link=True
+))
+async def cmd_start_help(message: Message):
+    await message.answer("Это старт с кнопкой старт")
+
+
 # Меню бота
 
 @dp.message(Command('menu'))
-async def menu_builder(message: Message, mod=None, kb_mod=None):
-    if mod == 'main' or mod is None:
-        kb = [[
-            types.KeyboardButton(text='Ссылочные мемы'),
-            types.KeyboardButton(text="Скачанные мемы*"),
-            types.KeyboardButton(text="Картинки из символов*"),
-            types.KeyboardButton(text="Анекдоты*"),
-            types.KeyboardButton(text="+2 или -2?"),
-        ], ]
-    elif mod == 'meme':
-        kb = [
-            kb_mod +
-            [
-                types.KeyboardButton(text="Назад в мейн меню"),
-            ], ]
+async def menu_builder(message: Message, kb_mod=None):
+    # получаем на вход мод и клавиатуру этого мода, возможно получится убрать ифы
+
+    if kb_mod:
+        # kb = [kb_mod.append(types.KeyboardButton(text="Назад в мейн меню"))]
+        print(kb_mod.append(types.KeyboardButton(text="Назад в мейн меню")))
+        kb = [kb_mod.append(types.KeyboardButton(text="Назад в мейн меню"))]
+
+        print("попал")
     else:
-        kb = [[
-            types.KeyboardButton(text='Что то пошло не так'),
-        ], ]
+        kb = [
+            [
+                types.KeyboardButton(text='Мемы'),
+                types.KeyboardButton(text="+2 или -2?"),
+                types.KeyboardButton(text="Картинки из символов*"),
+                types.KeyboardButton(text="Анекдоты*"),
+
+            ], ]  # TODO- Сделалать инлайн кнопки, а то в одну линию не удобно
 
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=kb,
@@ -70,19 +77,24 @@ async def menu_builder(message: Message, mod=None, kb_mod=None):
 
 @dp.message(F.text.lower() == "назад в мейн меню")
 async def back_to_main_menu(message: Message):
-    await menu_builder(message, 'main')
+    await menu_builder(message)
 
 
-# блок кнопок ссылочных мемов
+# блок кнопок мемов
 
-@dp.message(F.text.lower() == "ссылочные мемы")
+@dp.message(F.text.lower() == "мемы")
 async def link_meme_menu(message: Message):
+    # Первая собранная клавиатура с подменю
     kb_mod = [
         types.KeyboardButton(text="Рандомный мем"),
         types.KeyboardButton(text="Альбомом"),
         types.KeyboardButton(text="По порядку"),
+        types.KeyboardButton(text="Скачанные мемы"),
     ]
-    await menu_builder(message, 'meme', kb_mod)
+    print("отработка мемов")
+    print(type(kb_mod))
+
+    await menu_builder(message, kb_mod)
 
 
 @dp.message(F.text.lower() == "рандомный мем")
@@ -121,6 +133,20 @@ async def cmd_album(message: Message):
 @dp.message(F.text.lower() == "по порядку")
 async def cmd_poryadok(message: Message):
     await message.answer("в разработке")
+
+
+@dp.message(F.text.lower() == "скачанные мемы")
+async def cmd_downloaded_memes(message: Message):
+    await message.answer("В разработке")
+
+
+# блок кнопок арифметических операций
+@dp.message(F.text.lower() == "+2 или -2?")
+async def arifm_operand(message: Message):
+    kb_mod = [
+        types.KeyboardButton(text="+-1"),
+    ]
+    await menu_builder(message, kb_mod)
 
 
 if __name__ == '__main__':
