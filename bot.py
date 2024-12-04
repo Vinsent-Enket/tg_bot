@@ -22,17 +22,47 @@ from aiogram.filters.command import Command
 logging.basicConfig(level=logging.INFO)
 
 # Создаем самого бота
-BOT_TOKEN = "6908027614:AAHCULVVrZBd7zKKK_2A9_weqXgY7rcR8to" # TODO: заменить на переменную окружения
+BOT_TOKEN = "6908027614:AAHCULVVrZBd7zKKK_2A9_weqXgY7rcR8to"  # TODO: заменить на переменную окружения
 
 bot = Bot(token=BOT_TOKEN)
 
-#Диспетчер
+# Диспетчер
 dp = Dispatcher()
 
-#Хэндлер на команду /start
+
+# Хэндлер на команду /start
 @dp.message(Command('start'))
 async def cmd_start(message: types.Message):
     await message.answer('Привет!')
+
+
+# хэндлер на команду Хелп
+@dp.message(Command('help'))
+async def hlp_command(message: types.Message):
+    answer = ("Приветствую! \n"
+              "Список все команд:\n"
+              "/start - запуск бота \n"  # может сделать перезапуск?
+              "/help - помощь \n")
+    await message.answer(answer)
+
+
+"""
+Команды можно регистрировать как сразу через декоратор, так и позже
+"""
+
+
+@dp.message(Command('test1'))
+async def test1_command(message: types.Message):
+    await message.answer('test1')
+
+async def test2_command(message: types.Message):
+    await message.answer('test2')
+
+dp.message.register(test2_command, Command('test2'))
+
+
+
+
 
 # Запуск процесса поллинга (ожидания апдейтов???)
 async def main():
