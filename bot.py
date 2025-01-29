@@ -77,17 +77,18 @@ async def cmd_dice(message: types.Message):
 
 dp.message.register(test2_command, Command('test2'))
 
-dp.message(Command('add_to_list'))
 
-
-async def cmd_add_to_list(message: types.Message, mylist: list[int]):
-    mylist.append(7)
+@dp.message(Command('add_to_list'))
+async def cmd_add_to_list(message: types.Message, my_list: list[int]):
+    my_list.append(7)
+    print(my_list)
     await message.answer(f"Добавлено число 7")
 
 
 @dp.message(Command('show_list'))
-async def cmd_show_list(message: types.Message, mylist: list[int]):
-    await message.answer(f"Список: {mylist}")
+async def cmd_show_list(message: types.Message, my_list: list[int]):
+    print(my_list)
+    await message.answer(f"Список: {my_list}")
 
 
 @dp.message(Command('info'))
